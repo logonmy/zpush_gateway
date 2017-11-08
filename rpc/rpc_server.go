@@ -11,7 +11,7 @@ import (
 )
 
 func StartRPCServer() {
-	log.Println("rpc server started")
+	log.Printf("rpc server started, listen: %s\n", conf.Config().Server.RpcBind)
 
 	lis, err := net.Listen("tcp", conf.Config().Server.RpcBind)
 	if err != nil {

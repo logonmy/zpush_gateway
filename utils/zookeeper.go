@@ -1,11 +1,11 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/samuel/go-zookeeper/zk"
 	"log"
 	"time"
 	"zpush/conf"
-	"fmt"
 )
 
 const (
@@ -50,4 +50,29 @@ func RegisterGateway(nodeId string, addr string) error {
 	}
 
 	return nil
+}
+
+func GetGatewayServers() []string {
+	nodes, _, err := zkConn.Children(ROOT_PATH)
+	if err != nil {
+		log.Print("zookeeper ops error: %s\n", err.Error())
+		return nil
+	}
+
+	servers := make([]string, 0)
+
+	for _, node := range nodes {
+		gwPath := fmt.Sprintf("%s/%s", ROOT_PATH, node)
+		log.Println(gwPath)
+
+		server, _, err := zkConn.Get(gwPath)
+		if err != nil {
+			log.Printf("get gateway data error: %s\n", err.Error())
+			continue
+		}
+
+		servers = append(servers, string(server))
+	}
+
+	return servers
 }

@@ -54,6 +54,17 @@ func (this *Gateway) sendMsg(userid int, msg []byte) error {
 	return nil
 }
 
+func (this *Gateway) registerGateway() error {
+	err := utils.RegisterGateway(conf.Config().Server.NodeId, conf.Config().Server.TcpBind)
+	if err != nil {
+		log.Printf("register gateway error: %s\n", err.Error())
+		return err
+	}
+
+	log.Printf("register gateway success, node: %s\n", conf.Config().Server.NodeId)
+	return nil
+}
+
 func (this *Gateway) gatewayTimer() {
 	timer := time.NewTicker(time.Second * 5)
 
@@ -71,18 +82,23 @@ func (this *Gateway) gatewayTimer() {
 }
 
 func (this *Gateway) start() {
-	log.Println("gatway server started")
+	log.Printf("gateway server started, listen: %s\n", conf.Config().Server.TcpBind)
 
-	err := utils.InitRedis()
+	err := utils.InitZK()
+	if err != nil {
+		log.Fatalf("init zookeeper error: %s\n", err.Error())
+	}
+
+	err = utils.InitRedis()
 	if err != nil {
 		log.Fatalf("init redis error: %s\n", err.Error())
 	}
-	log.Println("init redis sucessful")
-
-	go this.gatewayTimer()
 
 	listener, err := net.Listen("tcp", conf.Config().Server.TcpBind)
 	utils.PanicIfError(err)
+
+	go this.gatewayTimer()
+	go this.registerGateway()
 
 	for {
 		conn, err := listener.Accept()

@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"encoding/binary"
+	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 	"log"
-	"github.com/gogo/protobuf/proto"
 )
 
 const (
@@ -56,7 +56,7 @@ func DispatchCmd(packetHeader *PacketHeader, packetBodyBuf []byte) (proto.Messag
 	}
 
 	respMsg, err := handler(packetHeader.Cmd, packetBodyBuf)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 

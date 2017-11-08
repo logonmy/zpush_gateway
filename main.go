@@ -5,15 +5,16 @@ import (
 	"log"
 
 	"context"
+	"fmt"
+	"github.com/garyburd/redigo/redis"
 	"google.golang.org/grpc"
 	"time"
 	"zpush/conf"
 	"zpush/gateway"
+	"zpush/http"
 	"zpush/rpc"
 	pb "zpush/rpc/protocol"
-	"fmt"
 	"zpush/utils"
-	"github.com/garyburd/redigo/redis"
 )
 
 var (
@@ -28,7 +29,7 @@ func test_client() {
 	key := fmt.Sprintf("user:gw:%d", userid)
 
 	gateway_addr, err := redis.String(utils.RedisConn().Do("GET", key))
-	if err != nil{
+	if err != nil {
 		log.Fatalln("redis error")
 	}
 
@@ -62,6 +63,7 @@ func main() {
 		log.Fatalf("parse config file error: %s\n", err.Error())
 	}
 
+	go http.StartHTTPServer()
 	go rpc.StartRPCServer()
 
 	//go test_client()

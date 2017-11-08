@@ -2,14 +2,14 @@ package gateway
 
 import (
 	"bufio"
+	"encoding/binary"
+	"github.com/gogo/protobuf/proto"
 	"io"
 	"log"
 	"net"
 	"zpush/gateway/cmd"
-	"zpush/utils"
-	"encoding/binary"
-	"github.com/gogo/protobuf/proto"
 	msg "zpush/gateway/message"
+	"zpush/utils"
 )
 
 type Session struct {
@@ -80,7 +80,7 @@ func (s *Session) Process() {
 		if err != nil {
 			if err == io.EOF {
 				log.Println("connection closed by peer")
-			}else{
+			} else {
 				log.Printf("io.ReadFull error: %s\n", err.Error())
 			}
 
@@ -106,7 +106,6 @@ func (s *Session) Process() {
 	}
 }
 
-
 func (s *Session) handlerIncomingPacket(packetHeader *cmd.PacketHeader, packetBodyBuf []byte) {
 	respMsg, err := cmd.DispatchCmd(packetHeader, packetBodyBuf)
 	if err != nil {
@@ -115,7 +114,7 @@ func (s *Session) handlerIncomingPacket(packetHeader *cmd.PacketHeader, packetBo
 		return
 	}
 
-	if packetHeader.Cmd == 1{
+	if packetHeader.Cmd == 1 {
 		loginResp, _ := respMsg.(*msg.LoginResp)
 
 		s.userId = int(loginResp.Userid)
@@ -124,12 +123,12 @@ func (s *Session) handlerIncomingPacket(packetHeader *cmd.PacketHeader, packetBo
 	}
 
 	respBytes, err := proto.Marshal(respMsg)
-	if err != nil{
+	if err != nil {
 		log.Println("marshal client msg error")
 		return
 	}
 
-	buf := make([]byte, 2 + 4 + len(respBytes))
+	buf := make([]byte, 2+4+len(respBytes))
 	n := 0
 	binary.BigEndian.PutUint16(buf[n:], 1)
 	n += 2

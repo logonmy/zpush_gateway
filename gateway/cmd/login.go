@@ -1,19 +1,18 @@
 package cmd
 
 import (
-	"log"
-	msg "zpush/gateway/message"
-	"github.com/gogo/protobuf/proto"
-	"math/rand"
 	"fmt"
+	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
+	"log"
+	"math/rand"
+	msg "zpush/gateway/message"
 )
-
 
 func onLogin(cmdCode uint16, packet []byte) (proto.Message, error) {
 	var req msg.LoginReq
 	err := proto.Unmarshal(packet, &req)
-	if err != nil{
+	if err != nil {
 		log.Printf("unmarshal client msg error: %s\n", err.Error())
 		return nil, errors.New("unmarshal client msg error")
 	}
@@ -22,7 +21,7 @@ func onLogin(cmdCode uint16, packet []byte) (proto.Message, error) {
 
 	resp := &msg.LoginResp{
 		Userid: int32(userid),
-		Token: fmt.Sprintf("faketoken%d", userid),
+		Token:  fmt.Sprintf("faketoken%d", userid),
 	}
 	return resp, nil
 }
