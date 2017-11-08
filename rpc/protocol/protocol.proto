@@ -1,0 +1,17 @@
+// 编译命令：protoc protocol.proto --go_out=plugins=grpc:.
+syntax = "proto3";
+
+
+service MsgService {
+    rpc Send (MsgReq) returns (MsgResp) {};
+}
+
+
+message MsgReq {
+    int32 userid = 1;
+    string content = 2;
+}
+
+message MsgResp {
+
+}

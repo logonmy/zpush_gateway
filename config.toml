@@ -1,0 +1,7 @@
+[server]
+tcp_bind = "192.168.123.199:10001"
+rpc_bind = "192.168.123.199:20001"
+
+[redis]
+address = "116.196.102.109:6379"
+password = "zhangqing0912"
