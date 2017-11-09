@@ -63,6 +63,8 @@ func main() {
 		log.Fatalf("parse config file error: %s\n", err.Error())
 	}
 
+	utils.Stats().RecordStart()
+	
 	go http.StartHTTPServer()
 	go rpc.StartRPCServer()
 

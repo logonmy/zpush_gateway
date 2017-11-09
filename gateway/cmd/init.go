@@ -40,11 +40,12 @@ func ParsePacketHeader(packetHeaderBuf []byte) (*PacketHeader, error) {
 	return &packetHeader, nil
 }
 
-type CMD_HANDLER func(uint16, []byte) (proto.Message, error)
+type CMD_HANDLER func([]byte) (proto.Message, error)
 
 var (
 	cmdHandler = map[uint16]CMD_HANDLER{
-		1: onLogin,
+		CMD_LOGIN: onLogin,
+		CMD_HB: onHeartbeat,
 	}
 )
 
@@ -55,7 +56,7 @@ func DispatchCmd(packetHeader *PacketHeader, packetBodyBuf []byte) (proto.Messag
 		return nil, nil
 	}
 
-	respMsg, err := handler(packetHeader.Cmd, packetBodyBuf)
+	respMsg, err := handler(packetBodyBuf)
 	if err != nil {
 		return nil, err
 	}

@@ -18,10 +18,23 @@ func gatewayHandler(c *gin.Context) {
 	})
 }
 
+func statsHandler(c *gin.Context){
+	stats := utils.Stats()
+
+	c.JSON(200, gin.H{
+		"start_time": stats.StartTime,
+		"total_msg_in": stats.MsgIn,
+		"total_msg_out": stats.MsgOut,
+	})
+}
+
+
 func StartHTTPServer() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	router.GET("/gateway", gatewayHandler)
+	router.GET("/stats", statsHandler)
+
 	router.Run(conf.Config().HTTP.Bind)
 }

@@ -65,6 +65,17 @@ func (this *Gateway) registerGateway() error {
 	return nil
 }
 
+func (this *Gateway) dumpStats(){
+	ticker := time.NewTicker(time.Second * 5)
+	for{
+		select{
+		case <- ticker.C:
+			log.Printf("start_time: %v, msg_in: %d, msg_out: %d\n",
+				utils.Stats().StartTime, utils.Stats().MsgIn, utils.Stats().MsgOut)
+		}
+	}
+}
+
 func (this *Gateway) gatewayTimer() {
 	timer := time.NewTicker(time.Second * 5)
 
@@ -72,10 +83,7 @@ func (this *Gateway) gatewayTimer() {
 		select {
 		case <-timer.C:
 			this.userSessionsLocker.RLock()
-			//log.Println("dump userSessions map")
-			for userid, session := range this.userSessions {
-				log.Printf("userid: %d —> session: %v\n", userid, session)
-			}
+			log.Printf("当前在线：%d\n", len(this.userSessions))
 			this.userSessionsLocker.RUnlock()
 		}
 	}
@@ -99,6 +107,7 @@ func (this *Gateway) start() {
 
 	go this.gatewayTimer()
 	go this.registerGateway()
+	go this.dumpStats()
 
 	for {
 		conn, err := listener.Accept()

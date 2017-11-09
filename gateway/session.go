@@ -42,7 +42,6 @@ func (s *Session) handleOutgoingPacket() {
 		select {
 		case <-s.connCloseCh:
 			{
-				log.Println("recv connection close signal")
 				return
 			}
 		case msg, ok := <-s.outPacketCh:
@@ -56,6 +55,8 @@ func (s *Session) handleOutgoingPacket() {
 				log.Printf("send response to client error: %s\n", err.Error())
 				return
 			}
+
+			utils.Stats().RecordMsgOut()
 		}
 	}
 }
@@ -65,12 +66,16 @@ func (s *Session) removeSession() {
 }
 
 func (s *Session) Process() {
-	log.Printf("client: %s connected\n", s.conn.RemoteAddr().String())
-
 	defer func() {
+		if err := recover(); err != nil{
+			log.Println(err)
+		}
 		s.connCloseCh <- true
 		utils.ReleaseBufReader(s.reader)
+		s.conn.Close()
 	}()
+
+	log.Printf("client: %s connected\n", s.conn.RemoteAddr().String())
 
 	go s.handleOutgoingPacket()
 
@@ -78,20 +83,14 @@ func (s *Session) Process() {
 		packetHeaderBuf := make([]byte, cmd.HEADER_LEN)
 		_, err := io.ReadFull(s.reader, packetHeaderBuf)
 		if err != nil {
-			if err == io.EOF {
-				log.Println("connection closed by peer")
-			} else {
-				log.Printf("io.ReadFull error: %s\n", err.Error())
-			}
-
 			s.removeSession()
 			return
 		}
 
 		packetHeader, err := cmd.ParsePacketHeader(packetHeaderBuf)
 		if err != nil {
-			log.Println(err.Error())
-			continue
+			log.Printf("unpack client header error: %s\n", err.Error())
+			return
 		}
 
 		packetBodyBuf := make([]byte, packetHeader.BodyLen)
@@ -99,7 +98,7 @@ func (s *Session) Process() {
 		_, err = io.ReadFull(s.reader, packetBodyBuf)
 		if err != nil {
 			log.Printf("io.ReadFull error: %s\n", err.Error())
-			continue
+			return
 		}
 
 		go s.handlerIncomingPacket(packetHeader, packetBodyBuf)
@@ -107,6 +106,8 @@ func (s *Session) Process() {
 }
 
 func (s *Session) handlerIncomingPacket(packetHeader *cmd.PacketHeader, packetBodyBuf []byte) {
+	utils.Stats().RecordMsgIn()
+
 	respMsg, err := cmd.DispatchCmd(packetHeader, packetBodyBuf)
 	if err != nil {
 		// 表示系统处理失败
@@ -116,10 +117,8 @@ func (s *Session) handlerIncomingPacket(packetHeader *cmd.PacketHeader, packetBo
 
 	if packetHeader.Cmd == 1 {
 		loginResp, _ := respMsg.(*msg.LoginResp)
-
 		s.userId = int(loginResp.Userid)
 		s.gateway.updateUserSession(s)
-
 	}
 
 	respBytes, err := proto.Marshal(respMsg)
