@@ -9,10 +9,11 @@ var (
 )
 
 type GlobalConfig struct {
-	Server serverConfig `toml:"server"`
-	HTTP   httpConfig   `toml:"http"`
-	Redis  redisConfig  `toml:"redis"`
-	ZK     zkConfig     `toml:"zookeeper"`
+	Server   serverConfig   `toml:"server"`
+	HTTP     httpConfig     `toml:"http"`
+	Redis    redisConfig    `toml:"redis"`
+	ZK       zkConfig       `toml:"zookeeper"`
+	Influxdb influxdbConfig `toml:"influxdb"`
 }
 
 type serverConfig struct {
@@ -32,6 +33,13 @@ type redisConfig struct {
 
 type zkConfig struct {
 	Address string `toml:"address"`
+}
+
+type influxdbConfig struct {
+	Address  string `toml:"address"`
+	Username string `toml:"username"`
+	Password string `toml:"password"`
+	DB       string `toml:"database"`
 }
 
 func Parse(cfgPath string) error {

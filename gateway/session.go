@@ -67,7 +67,7 @@ func (s *Session) removeSession() {
 
 func (s *Session) Process() {
 	defer func() {
-		if err := recover(); err != nil{
+		if err := recover(); err != nil {
 			log.Println(err)
 		}
 		s.connCloseCh <- true

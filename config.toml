@@ -12,3 +12,9 @@ password = "zhangqing0912"
 
 [zookeeper]
 address = "116.196.102.109"
+
+[influxdb]
+address = "http://120.77.77.254:8086"
+username = "root"
+password = "root"
+database = "zpush"

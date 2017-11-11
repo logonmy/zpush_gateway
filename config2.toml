@@ -1,0 +1,14 @@
+[server]
+node = "gw-02"
+tcp_bind = "localhost:1002"
+rpc_bind = "localhost:2002"
+
+[http]
+bind = "localhost:8081"
+
+[redis]
+address = "116.196.102.109:6379"
+password = "zhangqing0912"
+
+[zookeeper]
+address = "116.196.102.109"

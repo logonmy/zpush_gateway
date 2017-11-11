@@ -14,20 +14,19 @@ func gatewayHandler(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"code":    0,
 		"message": "success",
-		"data": servers,
+		"data":    servers,
 	})
 }
 
-func statsHandler(c *gin.Context){
+func statsHandler(c *gin.Context) {
 	stats := utils.Stats()
 
 	c.JSON(200, gin.H{
-		"start_time": stats.StartTime,
-		"total_msg_in": stats.MsgIn,
+		"start_time":    stats.StartTime,
+		"total_msg_in":  stats.MsgIn,
 		"total_msg_out": stats.MsgOut,
 	})
 }
-
 
 func StartHTTPServer() {
 	gin.SetMode(gin.ReleaseMode)

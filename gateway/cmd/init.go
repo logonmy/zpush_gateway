@@ -45,7 +45,7 @@ type CMD_HANDLER func([]byte) (proto.Message, error)
 var (
 	cmdHandler = map[uint16]CMD_HANDLER{
 		CMD_LOGIN: onLogin,
-		CMD_HB: onHeartbeat,
+		CMD_HB:    onHeartbeat,
 	}
 )
 

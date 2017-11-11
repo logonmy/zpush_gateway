@@ -1,10 +1,10 @@
 package cmd
 
 import (
+	"errors"
 	"github.com/gogo/protobuf/proto"
 	"log"
 	msg "zpush/gateway/message"
-	"errors"
 )
 
 func onHeartbeat(packet []byte) (proto.Message, error) {

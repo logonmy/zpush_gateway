@@ -65,11 +65,11 @@ func (this *Gateway) registerGateway() error {
 	return nil
 }
 
-func (this *Gateway) dumpStats(){
+func (this *Gateway) dumpStats() {
 	ticker := time.NewTicker(time.Second * 5)
-	for{
-		select{
-		case <- ticker.C:
+	for {
+		select {
+		case <-ticker.C:
 			log.Printf("start_time: %v, msg_in: %d, msg_out: %d\n",
 				utils.Stats().StartTime, utils.Stats().MsgIn, utils.Stats().MsgOut)
 		}
@@ -109,11 +109,27 @@ func (this *Gateway) start() {
 	go this.registerGateway()
 	go this.dumpStats()
 
+	var tempDelay time.Duration
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			log.Printf("accept connection error: %s\n", err.Error())
-			continue
+			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
+				if tempDelay == 0 {
+					tempDelay = time.Millisecond * 5
+				} else {
+					tempDelay *= 2
+				}
+
+				if max := time.Second; tempDelay > max {
+					tempDelay = max
+				}
+
+				time.Sleep(tempDelay)
+				continue
+			}
+
+			//log.Printf("accept connection error: %s\n", err.Error())
+			return
 		}
 
 		session := NewSession(this, conn, this.sessionId)
