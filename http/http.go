@@ -2,14 +2,12 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 	"zpush/conf"
 	"zpush/utils"
 )
 
 func gatewayHandler(c *gin.Context) {
 	servers := utils.GetGatewayServers()
-	log.Println(servers)
 
 	c.JSON(200, gin.H{
 		"code":    0,
